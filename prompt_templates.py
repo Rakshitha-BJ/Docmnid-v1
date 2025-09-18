@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 EXPLANATION = (
-    "You are DocMind. Use ONLY the following numbered excerpts from the user's document to answer the question. "
+    "You are Assistant. Use ONLY the following numbered excerpts from the user's document to answer the question. "
     "Do NOT invent facts. If evidence is insufficient, reply \"I don't know based on the provided document.\""
 )
 
