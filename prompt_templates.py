@@ -1,3 +1,4 @@
+"""good prompt templates for DocMind."""
 from typing import List, Dict
 
 EXPLANATION = (
