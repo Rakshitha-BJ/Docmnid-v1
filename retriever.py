@@ -12,7 +12,7 @@ class Retriever:
         self.embedder = embedder
         self.index, self.metadata = load_index()
 
-    def retrieve(self, question: str, top_k: int = 5) -> List[RetrievedChunk]:
+    def retrieve(self, question: str, top_k: int = 15) -> List[RetrievedChunk]:
         """Retrieve top-k chunks for the given question."""
         q_emb = self.embedder.embed_batch([question], batch_size=1, normalize=True)
         scores, indices = search(self.index, q_emb[0], top_k=top_k)

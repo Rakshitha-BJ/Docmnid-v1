@@ -27,12 +27,18 @@ class GeminiClient:
             logger.warning("GEMINI_API_KEY not set. LLM calls will fail until provided.")
         # Endpoint for the selected model
         self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.MODEL_NAME}:generateContent"
+        self.cache = {}  # Simple cache for prompts to responses
 
     def generate_answer(self, question: str, contexts: List[Dict]) -> str:
         if not contexts:
             return "I don't know based on the provided document."
 
         prompt = build_prompt(question, contexts)
+
+        # Check cache
+        if prompt in self.cache:
+            logger.info("Using cached response for prompt")
+            return self.cache[prompt]
 
         try:
             content = self._generate(prompt)
@@ -45,6 +51,8 @@ class GeminiClient:
             return "I don't know based on the provided document."
 
         text = self._normalize_citations(text, contexts)
+        # Cache the result
+        self.cache[prompt] = text
         return text
 
     def _generate(self, prompt: str) -> Dict:
@@ -59,7 +67,7 @@ class GeminiClient:
             ],
             "generationConfig": {
                 "temperature": 0.1,
-                "maxOutputTokens": 512,
+                "maxOutputTokens": 256,
             },
         }
 

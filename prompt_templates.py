@@ -9,9 +9,11 @@ PROMPT_TEMPLATE = (
     "System: " + EXPLANATION + "\n\n"
     "EXCERPTS:\n{excerpts}\n\n"
     "Question: {user_question}\n\n"
-    "Answer as 1–3 concise bullet points. Quote directly from EXCERPTS when possible and keep wording close to source. "
+    "Answer as 1–3 concise bullet points. Directly address the question using information from EXCERPTS. "
+    "Quote directly from EXCERPTS when possible and keep wording close to source. "
+    "Ensure the answer is relevant to the question and supported by the excerpts. "
     "For EVERY factual claim, append a page citation in the exact form [Doc: page X]. Do NOT use numeric references like [1] or [2]. "
-    "Use only pages present in EXCERPTS."
+    "Use only pages present in EXCERPTS. If no relevant information, say 'I don't know based on the provided document.'"
 )
 
 
