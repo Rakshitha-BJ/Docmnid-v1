@@ -43,12 +43,12 @@ def ingest_document(uploaded_file) -> None:
     pages = parse_pdf(temp_path)
 
     st.info("Chunking text (~300 tokens per chunk)...")
-    chunks = chunk_text(pages, chunk_size_tokens=300, doc_id=uploaded_file.name)
+    chunks = chunk_text(pages, chunk_size_tokens=600, doc_id=uploaded_file.name)
 
     st.info("Embedding chunks in batches...")
     embedder = Embedder()
     texts = [c["text"] for c in chunks]
-    embeddings = embedder.embed_batch(texts, batch_size=64, normalize=True)
+    embeddings = embedder.embed_batch(texts, batch_size=32, normalize=True)
 
     # Build metadata aligned with embeddings
     metadata: List[Dict] = []
@@ -108,7 +108,7 @@ st.header("Ask a Question")
 question = st.text_input("Your question")
 
 # Allow user to set Top-k before asking
-top_k = st.slider("Top-k chunks", min_value=1, max_value=10, value=5)
+top_k = st.slider("Top-k chunks", min_value=1, max_value=10, value=8)
 
 if st.button("Ask", disabled=not (os.path.exists(FAISS_INDEX_PATH) and question.strip())):
     with st.spinner("Retrieving..."):

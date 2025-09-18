@@ -9,7 +9,9 @@ PROMPT_TEMPLATE = (
     "System: " + EXPLANATION + "\n\n"
     "EXCERPTS:\n{excerpts}\n\n"
     "Question: {user_question}\n\n"
-    "Answer concisely and include bracketed citations for factual claims like [Doc: page 23]."
+    "Answer as 1–3 concise bullet points. Quote directly from EXCERPTS when possible and keep wording close to source. "
+    "For EVERY factual claim, append a page citation in the exact form [Doc: page X]. Do NOT use numeric references like [1] or [2]. "
+    "Use only pages present in EXCERPTS."
 )
 
 

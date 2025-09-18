@@ -1,3 +1,10 @@
 {"id":"q1","question":"What are the main objectives of DocMind?","gold_answer":"Allow uploads; chunk documents; embed; vector search; LLM answers; display with citations; simple interface.","gold_pages":[2]}
 {"id":"q2","question":"Who is the guide?","gold_answer":"Dr Ravikumar V","gold_pages":[1]}
 {"id":"q3","question":"Which frameworks are used for orchestration?","gold_answer":"LangChain and LangGraph","gold_pages":[5]}
+{"id":"q4","question":"What is the project title?","gold_answer":"DocMind - An AI-Powered PDF Analysis System","gold_pages":[1]}
+{"id":"q5","question":"List the authors' names.","gold_answer":"Rakshitha B J; Renil Dharuni; Likhitha M; Lakshmi S","gold_pages":[1]}
+{"id":"q6","question":"Who are the target users of DocMind?","gold_answer":"Students, researchers, legal professionals, and business users","gold_pages":[2]}
+{"id":"q7","question":"Summarize the Scope section.","gold_answer":"Uploading and analyzing PDFs; chunking to vectors; using LangChain/LangGraph; FAISS/Chroma for search; generating answers with an LLM; showing references; chat interface.","gold_pages":[3]}
+{"id":"q8","question":"What problem does DocMind solve?","gold_answer":"Time-consuming and frustrating searches through large PDF documents; enables natural-language Q&A.","gold_pages":[2]}
+{"id":"q9","question":"List the main steps of the methodology.","gold_answer":"Ingestion & preprocessing; embedding & vector storage; query processing & semantic retrieval; answer generation via RAG; orchestration with LangChain/LangGraph; UI & deployment.","gold_pages":[4,5]}
+{"id":"q10","question":"What outcomes are expected by the end of the project?","gold_answer":"Web-based chatbot for PDFs; accurate answers with retrieval; faster access; transparent references; flexible, extensible backend.","gold_pages":[6]}

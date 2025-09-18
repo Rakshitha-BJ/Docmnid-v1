@@ -2,6 +2,7 @@ import os
 import logging
 from typing import Dict, List, Optional
 import requests
+import re
 
 from prompt_templates import build_prompt
 
@@ -9,17 +10,14 @@ logger = logging.getLogger("docmind.llm")
 
 
 class GeminiClient:
-    """Adapter for Gemini 2.0 Flash via HTTP API.
+    """Adapter for Gemini 2.x Flash via HTTP API.
 
-    This class uses `requests` to demonstrate a minimal REST call. Replace the
-    `generate` method with the official Google Gemini SDK if preferred.
-
-    Expected environment variable: GEMINI_API_KEY
-
-    References:
-    - See Google AI Studio / Gemini API docs for REST endpoints and parameters.
-      Example docs: https://ai.google.dev/ (update with the correct endpoint for 2.0 Flash)
+    Uses `requests` to call the Google Generative Language API. Update MODEL_NAME
+    if you wish to switch to another Gemini model.
     """
+
+    # Central place to switch models (e.g., "gemini-2.0-flash")
+    MODEL_NAME = "gemini-2.0-flash"
 
     def __init__(self, api_key_env: str = "GEMINI_API_KEY", timeout_s: int = 20):
         self.api_key_env = api_key_env
@@ -27,14 +25,10 @@ class GeminiClient:
         self.timeout_s = timeout_s
         if not self.api_key:
             logger.warning("GEMINI_API_KEY not set. LLM calls will fail until provided.")
-        # Placeholder: update BASE_URL and model path as per official API spec
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+        # Endpoint for the selected model
+        self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.MODEL_NAME}:generateContent"
 
     def generate_answer(self, question: str, contexts: List[Dict]) -> str:
-        """Generate a grounded answer using provided contexts.
-
-        If contexts are empty, returns an "I don't know" message.
-        """
         if not contexts:
             return "I don't know based on the provided document."
 
@@ -49,26 +43,22 @@ class GeminiClient:
         text = self._extract_text(content)
         if not text:
             return "I don't know based on the provided document."
+
+        text = self._normalize_citations(text, contexts)
         return text
 
     def _generate(self, prompt: str) -> Dict:
-        """Call Gemini REST API with retries and timeout.
-
-        Note: This is a minimal example. The actual Gemini API expects a specific JSON body
-        with content blocks. Adjust as per the latest docs.
-        """
         if not self.api_key:
             raise RuntimeError("Missing GEMINI_API_KEY")
 
         headers = {"Content-Type": "application/json"}
         params = {"key": self.api_key}
-        # Minimal body following the generateContent schema for text-only input.
         body = {
             "contents": [
                 {"parts": [{"text": prompt}]}
             ],
             "generationConfig": {
-                "temperature": 0.2,
+                "temperature": 0.1,
                 "maxOutputTokens": 512,
             },
         }
@@ -80,7 +70,6 @@ class GeminiClient:
             resp.raise_for_status()
             return resp.json()
 
-        # Simple exponential backoff
         backoff = 1.0
         for attempt in range(5):
             try:
@@ -96,15 +85,6 @@ class GeminiClient:
 
     @staticmethod
     def _extract_text(response_json: Dict) -> Optional[str]:
-        """Extract text from Gemini response JSON.
-
-        This method follows the common Gemini REST response structure:
-        {
-          "candidates": [
-            { "content": { "parts": [{"text": "..."}] } }
-          ]
-        }
-        """
         try:
             candidates = response_json.get("candidates") or []
             if not candidates:
@@ -117,3 +97,28 @@ class GeminiClient:
             return text
         except Exception:
             return None
+
+    @staticmethod
+    def _normalize_citations(text: str, contexts: List[Dict]) -> str:
+        def repl_num(m):
+            try:
+                idx = int(m.group(1)) - 1
+                if 0 <= idx < len(contexts):
+                    return f"[Doc: page {contexts[idx]['page']}]"
+            except Exception:
+                pass
+            return ""
+
+        text = re.sub(r"\[(\d+)\]", repl_num, text)
+
+        allowed_pages = {c.get("page") for c in contexts}
+
+        def validate_page(m):
+            try:
+                p = int(m.group(1))
+                return m.group(0) if p in allowed_pages else ""
+            except Exception:
+                return ""
+
+        text = re.sub(r"\[Doc:\s*page\s*(\d+)\]", validate_page, text, flags=re.IGNORECASE)
+        return text
